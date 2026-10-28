@@ -1,0 +1,180 @@
+{
+  "entities": {
+    "SchoolConfig": {
+      "title": "SchoolConfig",
+      "description": "Configuration and identity of the school platform (Government or Private)",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Authenticated owner UID" },
+        "name": { "type": "string", "description": "School name" },
+        "address": { "type": "string", "description": "School address (default Mosul - Zummar)" },
+        "schoolType": { "type": "string", "enum": ["GOVERNMENT", "PRIVATE"], "description": "Type of school" },
+        "emblemTitle": { "type": "string", "description": "School motto or emblem title" },
+        "academicYear": { "type": "string", "description": "Current academic year" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp" }
+      },
+      "required": ["userId", "name", "address", "schoolType", "emblemTitle", "academicYear", "createdAt", "updatedAt"]
+    },
+    "StudentRecord": {
+      "title": "StudentRecord",
+      "description": "Student profile, attendance status, honor roll status, and tuition balance",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "gradeClass": { "type": "string" },
+        "section": { "type": "string" },
+        "parentName": { "type": "string" },
+        "parentPhone": { "type": "string" },
+        "accessCode": { "type": "string" },
+        "attendanceStatus": { "type": "string", "enum": ["PRESENT", "ABSENT", "LATE", "EXCUSED"] },
+        "absenceDaysMonth": { "type": "integer" },
+        "isHonorRoll": { "type": "boolean" },
+        "honorReason": { "type": "string" },
+        "totalTuition": { "type": "integer" },
+        "paidTuition": { "type": "integer" },
+        "nextInstallmentDate": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "fullName", "gradeClass", "section", "parentName", "parentPhone",
+        "accessCode", "attendanceStatus", "absenceDaysMonth", "isHonorRoll", "honorReason",
+        "totalTuition", "paidTuition", "nextInstallmentDate", "createdAt", "updatedAt"
+      ]
+    },
+    "TeacherRecord": {
+      "title": "TeacherRecord",
+      "description": "Teacher account and subject assignment",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "subject": { "type": "string" },
+        "assignedClasses": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "fullName", "subject", "assignedClasses", "phone", "createdAt", "updatedAt"]
+    },
+    "LessonPrep": {
+      "title": "LessonPrep",
+      "description": "Class schedule slot, daily preparation topic, and homework",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "dayName": { "type": "string" },
+        "periodNumber": { "type": "integer" },
+        "gradeClass": { "type": "string" },
+        "section": { "type": "string" },
+        "subject": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "preparationTopic": { "type": "string" },
+        "homeworkText": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "dayName", "periodNumber", "gradeClass", "section",
+        "subject", "teacherName", "preparationTopic", "homeworkText", "createdAt", "updatedAt"
+      ]
+    },
+    "GradeEntry": {
+      "title": "GradeEntry",
+      "description": "Student exam schedule and grades record across periods",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "gradeClass": { "type": "string" },
+        "subject": { "type": "string" },
+        "examDate": { "type": "string" },
+        "dailyScore": { "type": "integer" },
+        "monthlyScore": { "type": "integer" },
+        "midyearScore": { "type": "integer" },
+        "annualEffortScore": { "type": "integer" },
+        "finalScore": { "type": "integer" },
+        "evaluationText": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "studentId", "studentName", "gradeClass", "subject", "examDate",
+        "dailyScore", "monthlyScore", "midyearScore", "annualEffortScore", "finalScore",
+        "evaluationText", "createdAt", "updatedAt"
+      ]
+    },
+    "SchoolNotice": {
+      "title": "SchoolNotice",
+      "description": "Direct notice or alert sent to a student's parent with reply support",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "parentPhone": { "type": "string" },
+        "noticeType": { "type": "string", "enum": ["APPRECIATION", "SUMMONS", "BEHAVIORAL", "ACADEMIC", "ABSENCE_ALERT"] },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "senderRole": { "type": "string" },
+        "parentReply": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "studentId", "studentName", "parentPhone", "noticeType",
+        "title", "message", "senderRole", "parentReply", "isRead", "createdAt", "updatedAt"
+      ]
+    },
+    "SchoolEvent": {
+      "title": "SchoolEvent",
+      "description": "School gallery news, festivals, and student activities",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "eventDate": { "type": "string" },
+        "category": { "type": "string" },
+        "visualTheme": { "type": "string", "enum": ["SCIENCE", "HONOR", "SPORTS", "CULTURE"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "description", "eventDate", "category", "visualTheme", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/schools/{schoolId}": {
+      "schema": { "$ref": "#/entities/SchoolConfig" },
+      "description": "School configuration document owned by the signed-in user"
+    },
+    "/users/{userId}/students/{studentId}": {
+      "schema": { "$ref": "#/entities/StudentRecord" },
+      "description": "Student records for the school platform"
+    },
+    "/users/{userId}/teachers/{teacherId}": {
+      "schema": { "$ref": "#/entities/TeacherRecord" },
+      "description": "Teacher records for the school platform"
+    },
+    "/users/{userId}/lessons/{lessonId}": {
+      "schema": { "$ref": "#/entities/LessonPrep" },
+      "description": "Daily lesson schedule and homework preparations"
+    },
+    "/users/{userId}/grades/{gradeId}": {
+      "schema": { "$ref": "#/entities/GradeEntry" },
+      "description": "Exam schedules and student subject grades"
+    },
+    "/users/{userId}/notices/{noticeId}": {
+      "schema": { "$ref": "#/entities/SchoolNotice" },
+      "description": "Parent notices, summons, appreciation letters, and direct messages"
+    },
+    "/users/{userId}/events/{eventId}": {
+      "schema": { "$ref": "#/entities/SchoolEvent" },
+      "description": "School gallery events and news"
+    }
+  }
+}

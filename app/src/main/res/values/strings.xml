@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">مدرستي</string>
+    <string name="onboarding_title_1">مرحباً بك في منصة مدرستي الذكية</string>
+    <string name="onboarding_title_2">متابعة يومية دقيقة</string>
+    <string name="onboarding_title_3">تكريم المتفوقين وتواصل مباشر</string>
+    <string name="developer_signature">تصميم وتطوير: أحمد أبو رسلان | 07512362567</string>
+    <string name="setup_new_school">تأسيس منصة مدرسة جديدة</string>
+    <string name="school_type_government">مدرسة حكومية</string>
+    <string name="school_type_private">مدرسة أهلية</string>
+    <string name="default_address_hint">الموصل - زمار</string>
+</resources>

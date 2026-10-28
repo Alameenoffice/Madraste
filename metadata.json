@@ -1,0 +1,6 @@
+{
+  "name": "مدرستي",
+  "description": "منصة مدرستي الذكية لإدارة التواصل المدرسي الشامل بين الإدارة والمعلمين والطلاب وأولياء الأمور",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

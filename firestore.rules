@@ -1,0 +1,305 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 0: Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function hasValidTimestampsOnCreate(data) {
+      return data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function hasValidTimestampsOnUpdate(data, oldData) {
+      return data.createdAt == oldData.createdAt &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // 1. SchoolConfig Validation
+    function isValidSchoolConfig(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 120 &&
+             data.address is string && data.address.size() >= 1 && data.address.size() <= 200 &&
+             data.schoolType is string && (data.schoolType == 'GOVERNMENT' || data.schoolType == 'PRIVATE') &&
+             data.emblemTitle is string && data.emblemTitle.size() >= 1 && data.emblemTitle.size() <= 120 &&
+             data.academicYear is string && data.academicYear.size() >= 1 && data.academicYear.size() <= 40;
+    }
+
+    // 2. StudentRecord Validation
+    function isValidStudentRecord(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 120 &&
+             data.gradeClass is string && data.gradeClass.size() >= 1 && data.gradeClass.size() <= 60 &&
+             data.section is string && data.section.size() >= 1 && data.section.size() <= 20 &&
+             data.parentName is string && data.parentName.size() >= 1 && data.parentName.size() <= 120 &&
+             data.parentPhone is string && data.parentPhone.size() >= 1 && data.parentPhone.size() <= 30 &&
+             data.accessCode is string && data.accessCode.size() >= 1 && data.accessCode.size() <= 30 &&
+             data.attendanceStatus is string &&
+             (data.attendanceStatus == 'PRESENT' || data.attendanceStatus == 'ABSENT' ||
+              data.attendanceStatus == 'LATE' || data.attendanceStatus == 'EXCUSED') &&
+             data.absenceDaysMonth is int && data.absenceDaysMonth >= 0 && data.absenceDaysMonth <= 31 &&
+             data.isHonorRoll is bool &&
+             data.honorReason is string && data.honorReason.size() <= 200 &&
+             data.totalTuition is int && data.totalTuition >= 0 && data.totalTuition <= 100000000 &&
+             data.paidTuition is int && data.paidTuition >= 0 && data.paidTuition <= 100000000 &&
+             data.nextInstallmentDate is string && data.nextInstallmentDate.size() <= 60;
+    }
+
+    // 3. TeacherRecord Validation
+    function isValidTeacherRecord(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 120 &&
+             data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 80 &&
+             data.assignedClasses is string && data.assignedClasses.size() >= 1 && data.assignedClasses.size() <= 150 &&
+             data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 30;
+    }
+
+    // 4. LessonPrep Validation
+    function isValidLessonPrep(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.dayName is string && data.dayName.size() >= 1 && data.dayName.size() <= 30 &&
+             data.periodNumber is int && data.periodNumber >= 1 && data.periodNumber <= 8 &&
+             data.gradeClass is string && data.gradeClass.size() >= 1 && data.gradeClass.size() <= 60 &&
+             data.section is string && data.section.size() >= 1 && data.section.size() <= 20 &&
+             data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 80 &&
+             data.teacherName is string && data.teacherName.size() >= 1 && data.teacherName.size() <= 120 &&
+             data.preparationTopic is string && data.preparationTopic.size() >= 1 && data.preparationTopic.size() <= 300 &&
+             data.homeworkText is string && data.homeworkText.size() >= 1 && data.homeworkText.size() <= 300;
+    }
+
+    // 5. GradeEntry Validation
+    function isValidGradeEntry(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.studentId is string && data.studentId.size() >= 1 && data.studentId.size() <= 128 &&
+             data.studentName is string && data.studentName.size() >= 1 && data.studentName.size() <= 120 &&
+             data.gradeClass is string && data.gradeClass.size() >= 1 && data.gradeClass.size() <= 60 &&
+             data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 80 &&
+             data.examDate is string && data.examDate.size() >= 1 && data.examDate.size() <= 60 &&
+             data.dailyScore is int && data.dailyScore >= 0 && data.dailyScore <= 100 &&
+             data.monthlyScore is int && data.monthlyScore >= 0 && data.monthlyScore <= 100 &&
+             data.midyearScore is int && data.midyearScore >= 0 && data.midyearScore <= 100 &&
+             data.annualEffortScore is int && data.annualEffortScore >= 0 && data.annualEffortScore <= 100 &&
+             data.finalScore is int && data.finalScore >= 0 && data.finalScore <= 100 &&
+             data.evaluationText is string && data.evaluationText.size() >= 1 && data.evaluationText.size() <= 60;
+    }
+
+    // 6. SchoolNotice Validation
+    function isValidSchoolNotice(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.studentId is string && data.studentId.size() >= 1 && data.studentId.size() <= 128 &&
+             data.studentName is string && data.studentName.size() >= 1 && data.studentName.size() <= 120 &&
+             data.parentPhone is string && data.parentPhone.size() >= 1 && data.parentPhone.size() <= 30 &&
+             data.noticeType is string &&
+             (data.noticeType == 'APPRECIATION' || data.noticeType == 'SUMMONS' ||
+              data.noticeType == 'BEHAVIORAL' || data.noticeType == 'ACADEMIC' ||
+              data.noticeType == 'ABSENCE_ALERT') &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 150 &&
+             data.message is string && data.message.size() >= 1 && data.message.size() <= 600 &&
+             data.senderRole is string && data.senderRole.size() >= 1 && data.senderRole.size() <= 60 &&
+             data.parentReply is string && data.parentReply.size() <= 500 &&
+             data.isRead is bool;
+    }
+
+    // 7. SchoolEvent Validation
+    function isValidSchoolEvent(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 150 &&
+             data.description is string && data.description.size() >= 1 && data.description.size() <= 600 &&
+             data.eventDate is string && data.eventDate.size() >= 1 && data.eventDate.size() <= 60 &&
+             data.category is string && data.category.size() >= 1 && data.category.size() <= 60 &&
+             data.visualTheme is string &&
+             (data.visualTheme == 'SCIENCE' || data.visualTheme == 'HONOR' ||
+              data.visualTheme == 'SPORTS' || data.visualTheme == 'CULTURE');
+    }
+
+    match /users/{userId} {
+      // 1. Schools Collection
+      match /schools/{schoolId} {
+        allow get: if isOwner(userId) && isValidId(schoolId) && (resource == null || existing().userId == request.auth.uid);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+        allow create: if isOwner(userId) && isValidId(schoolId) &&
+                         incoming().keys().hasAll(['userId', 'name', 'address', 'schoolType', 'emblemTitle', 'academicYear', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['userId', 'name', 'address', 'schoolType', 'emblemTitle', 'academicYear', 'createdAt', 'updatedAt']) &&
+                         hasValidTimestampsOnCreate(incoming()) &&
+                         isValidSchoolConfig(incoming());
+        allow update: if isOwner(userId) && isValidId(schoolId) &&
+                         isValidSchoolConfig(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         hasValidTimestampsOnUpdate(incoming(), existing()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'address', 'schoolType', 'emblemTitle', 'academicYear', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(schoolId) && existing().userId == request.auth.uid;
+      }
+
+      // 2. Students Collection
+      match /students/{studentId} {
+        allow get: if isOwner(userId) && isValidId(studentId) && (resource == null || existing().userId == request.auth.uid);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+        allow create: if isOwner(userId) && isValidId(studentId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'fullName', 'gradeClass', 'section', 'parentName', 'parentPhone',
+                           'accessCode', 'attendanceStatus', 'absenceDaysMonth', 'isHonorRoll', 'honorReason',
+                           'totalTuition', 'paidTuition', 'nextInstallmentDate', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'fullName', 'gradeClass', 'section', 'parentName', 'parentPhone',
+                           'accessCode', 'attendanceStatus', 'absenceDaysMonth', 'isHonorRoll', 'honorReason',
+                           'totalTuition', 'paidTuition', 'nextInstallmentDate', 'createdAt', 'updatedAt'
+                         ]) &&
+                         hasValidTimestampsOnCreate(incoming()) &&
+                         isValidStudentRecord(incoming());
+        allow update: if isOwner(userId) && isValidId(studentId) &&
+                         isValidStudentRecord(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         hasValidTimestampsOnUpdate(incoming(), existing()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'fullName', 'gradeClass', 'section', 'parentName', 'parentPhone',
+                           'accessCode', 'attendanceStatus', 'absenceDaysMonth', 'isHonorRoll', 'honorReason',
+                           'totalTuition', 'paidTuition', 'nextInstallmentDate', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(studentId) && existing().userId == request.auth.uid;
+      }
+
+      // 3. Teachers Collection
+      match /teachers/{teacherId} {
+        allow get: if isOwner(userId) && isValidId(teacherId) && (resource == null || existing().userId == request.auth.uid);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+        allow create: if isOwner(userId) && isValidId(teacherId) &&
+                         incoming().keys().hasAll(['userId', 'fullName', 'subject', 'assignedClasses', 'phone', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['userId', 'fullName', 'subject', 'assignedClasses', 'phone', 'createdAt', 'updatedAt']) &&
+                         hasValidTimestampsOnCreate(incoming()) &&
+                         isValidTeacherRecord(incoming());
+        allow update: if isOwner(userId) && isValidId(teacherId) &&
+                         isValidTeacherRecord(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         hasValidTimestampsOnUpdate(incoming(), existing()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'subject', 'assignedClasses', 'phone', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(teacherId) && existing().userId == request.auth.uid;
+      }
+
+      // 4. Lessons Collection
+      match /lessons/{lessonId} {
+        allow get: if isOwner(userId) && isValidId(lessonId) && (resource == null || existing().userId == request.auth.uid);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+        allow create: if isOwner(userId) && isValidId(lessonId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'dayName', 'periodNumber', 'gradeClass', 'section',
+                           'subject', 'teacherName', 'preparationTopic', 'homeworkText', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'dayName', 'periodNumber', 'gradeClass', 'section',
+                           'subject', 'teacherName', 'preparationTopic', 'homeworkText', 'createdAt', 'updatedAt'
+                         ]) &&
+                         hasValidTimestampsOnCreate(incoming()) &&
+                         isValidLessonPrep(incoming());
+        allow update: if isOwner(userId) && isValidId(lessonId) &&
+                         isValidLessonPrep(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         hasValidTimestampsOnUpdate(incoming(), existing()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'dayName', 'periodNumber', 'gradeClass', 'section',
+                           'subject', 'teacherName', 'preparationTopic', 'homeworkText', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(lessonId) && existing().userId == request.auth.uid;
+      }
+
+      // 5. Grades Collection
+      match /grades/{gradeId} {
+        allow get: if isOwner(userId) && isValidId(gradeId) && (resource == null || existing().userId == request.auth.uid);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+        allow create: if isOwner(userId) && isValidId(gradeId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'studentId', 'studentName', 'gradeClass', 'subject', 'examDate',
+                           'dailyScore', 'monthlyScore', 'midyearScore', 'annualEffortScore', 'finalScore',
+                           'evaluationText', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'studentId', 'studentName', 'gradeClass', 'subject', 'examDate',
+                           'dailyScore', 'monthlyScore', 'midyearScore', 'annualEffortScore', 'finalScore',
+                           'evaluationText', 'createdAt', 'updatedAt'
+                         ]) &&
+                         hasValidTimestampsOnCreate(incoming()) &&
+                         isValidGradeEntry(incoming());
+        allow update: if isOwner(userId) && isValidId(gradeId) &&
+                         isValidGradeEntry(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         hasValidTimestampsOnUpdate(incoming(), existing()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'studentId', 'studentName', 'gradeClass', 'subject', 'examDate',
+                           'dailyScore', 'monthlyScore', 'midyearScore', 'annualEffortScore', 'finalScore',
+                           'evaluationText', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(gradeId) && existing().userId == request.auth.uid;
+      }
+
+      // 6. Notices Collection
+      match /notices/{noticeId} {
+        allow get: if isOwner(userId) && isValidId(noticeId) && (resource == null || existing().userId == request.auth.uid);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+        allow create: if isOwner(userId) && isValidId(noticeId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'studentId', 'studentName', 'parentPhone', 'noticeType',
+                           'title', 'message', 'senderRole', 'parentReply', 'isRead', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'studentId', 'studentName', 'parentPhone', 'noticeType',
+                           'title', 'message', 'senderRole', 'parentReply', 'isRead', 'createdAt', 'updatedAt'
+                         ]) &&
+                         hasValidTimestampsOnCreate(incoming()) &&
+                         isValidSchoolNotice(incoming());
+        allow update: if isOwner(userId) && isValidId(noticeId) &&
+                         isValidSchoolNotice(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         hasValidTimestampsOnUpdate(incoming(), existing()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'title', 'message', 'parentReply', 'isRead', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(noticeId) && existing().userId == request.auth.uid;
+      }
+
+      // 7. Events Collection
+      match /events/{eventId} {
+        allow get: if isOwner(userId) && isValidId(eventId) && (resource == null || existing().userId == request.auth.uid);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+        allow create: if isOwner(userId) && isValidId(eventId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'description', 'eventDate', 'category', 'visualTheme', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'description', 'eventDate', 'category', 'visualTheme', 'createdAt', 'updatedAt'
+                         ]) &&
+                         hasValidTimestampsOnCreate(incoming()) &&
+                         isValidSchoolEvent(incoming());
+        allow update: if isOwner(userId) && isValidId(eventId) &&
+                         isValidSchoolEvent(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         hasValidTimestampsOnUpdate(incoming(), existing()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'title', 'description', 'eventDate', 'category', 'visualTheme', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(eventId) && existing().userId == request.auth.uid;
+      }
+    }
+  }
+}

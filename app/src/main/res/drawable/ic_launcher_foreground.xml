@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Golden Laurel Circle Accent -->
+    <path
+        android:fillColor="#33F59E0B"
+        android:pathData="M54,24A30,30 0 1,1 54,84A30,30 0 1,1 54,24Z" />
+    <!-- Graduation Cap & Book Silhouette -->
+    <path
+        android:fillColor="#FFF59E0B"
+        android:pathData="M54,28L24,42L54,56L78,44.8V61H83V42L54,28Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M35,51.5V65.5C35,71.5 43.5,76.5 54,76.5C64.5,76.5 73,71.5 73,65.5V51.5L54,60.5L35,51.5Z" />
+</vector>

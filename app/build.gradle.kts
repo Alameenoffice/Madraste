@@ -11,12 +11,16 @@ plugins {
 
 android {
   namespace = "com.example"
-  compileSdk { version = release(36) { minorApiLevel = 1 } }
+  if (System.getenv("GITHUB_ACTIONS") == "true") {
+    compileSdk = 35
+  } else {
+    compileSdk { version = release(36) { minorApiLevel = 1 } }
+  }
 
   defaultConfig {
     applicationId = "com.aistudio.myschool.mdrsti"
     minSdk = 24
-    targetSdk = 36
+    targetSdk = if (System.getenv("GITHUB_ACTIONS") == "true") 35 else 36
     versionCode = 1
     versionName = "1.0"
 

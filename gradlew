@@ -211,8 +211,11 @@ EOF
     if [ ! -f "$APP_HOME/debug.keystore" ]; then
         if [ -f "$APP_HOME/debug.keystore.base64" ]; then
             tr -d ' \t\r\n' < "$APP_HOME/debug.keystore.base64" | base64 -d > "$APP_HOME/debug.keystore"
+        else
+            keytool -genkeypair -v -keystore "$APP_HOME/debug.keystore" -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US" >/dev/null 2>&1 || true
         fi
     fi
+    sed -i 's/signingConfig = signingConfigs.getByName("debugConfig")/\/\/ Using default debug signing in CI/g' "$APP_HOME/app/build.gradle.kts" 2>/dev/null || true
 fi
 
 # Use the maximum available, or set MAX_FD != -1 to use that value.

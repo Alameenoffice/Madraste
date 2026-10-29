@@ -9,10 +9,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <style>
+    @font-face {
+      font-family: 'Cairo';
+      src: url('cairo.ttf') format('truetype');
+      font-weight: 400 800;
+      font-display: swap;
+    }
     :root {
       --primary: #1E3A8A;
       --primary-light: #2563EB;
+      --primary-soft: #DBEAFE;
       --gold: #F59E0B;
+      --gold-dark: #B45309;
       --gold-bg: #FEF3C7;
       --bg: #F8FAFC;
       --card: #FFFFFF;
@@ -20,24 +28,31 @@
       --muted: #475569;
       --border: #E2E8F0;
       --green: #16A34A;
+      --green-soft: #DCFCE7;
       --red: #DC2626;
+      --red-soft: #FEE2E2;
     }
     body.dark {
-      --primary: #3B82F6;
-      --primary-light: #60A5FA;
+      --primary: #2563EB;
+      --primary-light: #3B82F6;
+      --primary-soft: #1E3A8A;
       --gold: #FBBF24;
+      --gold-dark: #FDE68A;
       --gold-bg: #451A03;
       --bg: #0B1120;
       --card: #1E293B;
       --text: #F8FAFC;
       --muted: #94A3B8;
       --border: #334155;
+      --green-soft: #064E3B;
+      --red-soft: #7F1D1D;
     }
     * {
       box-sizing: border-box;
       font-family: 'Cairo', sans-serif;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
     body {
       background: var(--bg);
@@ -47,12 +62,67 @@
       display: flex;
       flex-direction: column;
     }
-    button, .badge, .tab-btn, .role-btn {
+    button, .badge, .tab-btn, .role-btn, .nowrap {
       white-space: nowrap;
       cursor: pointer;
       border: none;
       font-family: 'Cairo', sans-serif;
     }
+    /* Onboarding Overlay */
+    #onboardingOverlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 16px 12px;
+    }
+    .onboarding-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .onboarding-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+    #lottieContainer {
+      width: 220px;
+      height: 220px;
+      margin-bottom: 18px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(30,58,138,0.08), rgba(245,158,11,0.12));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .dots {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .dot {
+      height: 8px;
+      width: 10px;
+      border-radius: 99px;
+      background: var(--border);
+      transition: all 0.25s ease;
+    }
+    .dot.active {
+      width: 28px;
+      background: var(--primary-light);
+    }
+    /* Header */
     .header {
       background: linear-gradient(135deg, #1E3A8A, #2563EB);
       color: #fff;
@@ -64,6 +134,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      flex-wrap: wrap;
     }
     .school-brand {
       display: flex;
@@ -71,16 +142,18 @@
       gap: 10px;
     }
     .school-logo {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.16);
+      border: 2px solid #FBBF24;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
       color: #FBBF24;
       font-weight: 800;
+      flex-shrink: 0;
     }
     .badge {
       padding: 3px 10px;
@@ -89,8 +162,11 @@
       font-weight: 700;
       display: inline-block;
     }
-    .badge-gov { background: #DBEAFE; color: #1E3A8A; }
-    .badge-priv { background: #FEF3C7; color: #92400E; }
+    .badge-gov { background: var(--primary-soft); color: var(--primary-light); }
+    body:not(.dark) .badge-gov { color: #1E3A8A; }
+    .badge-priv { background: var(--gold-bg); color: var(--gold-dark); }
+    .badge-green { background: var(--green-soft); color: var(--green); }
+    .badge-red { background: var(--red-soft); color: var(--red); }
     .roles-bar, .tabs-bar {
       display: flex;
       gap: 8px;
@@ -116,7 +192,7 @@
     .container {
       flex: 1;
       padding: 16px;
-      max-width: 900px;
+      max-width: 920px;
       width: 100%;
       margin: 0 auto;
     }
@@ -146,13 +222,16 @@
       font-size: 13px;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       text-decoration: none;
+      white-space: nowrap;
     }
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-gold { background: var(--gold); color: #fff; }
     .btn-green { background: var(--green); color: #fff; }
     .btn-red { background: var(--red); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .signature-bar {
       background: var(--card);
       border-top: 1px solid var(--border);
@@ -169,92 +248,315 @@
       display: flex;
       gap: 8px;
     }
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      z-index: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      width: 100%;
+      max-width: 460px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Onboarding Screen (Real Lottie JSON) -->
+  <div id="onboardingOverlay" style="display:none;">
+    <div class="onboarding-top">
+      <span class="badge badge-gov">منصة مدرستي الذكية</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-outline" onclick="toggleTheme()">تبديل المظهر</button>
+        <button class="btn btn-outline" onclick="finishOnboarding()">تخطي</button>
+      </div>
+    </div>
+
+    <div class="onboarding-center">
+      <div id="lottieContainer"></div>
+      <h2 id="slideTitle" style="font-size:21px;font-weight:800;margin-bottom:8px;"></h2>
+      <p id="slideDesc" style="font-size:14px;color:var(--muted);line-height:1.7;"></p>
+      <div class="dots">
+        <div class="dot active" id="dot0"></div>
+        <div class="dot" id="dot1"></div>
+        <div class="dot" id="dot2"></div>
+      </div>
+      <div style="display:flex;gap:10px;width:100%;margin-top:8px;">
+        <button class="btn btn-outline" id="prevSlideBtn" style="flex:1;" onclick="changeSlide(-1)">السابق</button>
+        <button class="btn btn-primary" id="nextSlideBtn" style="flex:2;" onclick="changeSlide(1)">التالي</button>
+      </div>
+    </div>
+
+    <div class="signature-bar" style="border-radius:14px;border:1px solid var(--border);">
+      <span class="nowrap">تصميم وتطوير: أحمد أبو رسلان | 07512362567</span>
+      <div class="sig-actions">
+        <a class="btn btn-primary" href="tel:07512362567">اتصال هاتفي</a>
+        <a class="btn btn-green" href="https://wa.me/9647512362567" target="_blank">واتساب</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
   <header class="header">
     <div class="header-top">
       <div class="school-brand">
         <div class="school-logo">م</div>
         <div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <h1 id="schoolNameText" style="font-size:18px;white-space:nowrap;">ثانوية النور النموذجية</h1>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <h1 id="schoolNameText" style="font-size:17px;white-space:nowrap;">ثانوية النور النموذجية</h1>
             <span id="schoolTypeBadge" class="badge badge-priv">مدرسة أهلية</span>
           </div>
-          <p id="schoolAddressText" style="font-size:12px;opacity:0.9;white-space:nowrap;">بغداد - المنصور | نحو جيل مبدع ومتفوق</p>
+          <p id="schoolAddressText" style="font-size:12px;opacity:0.92;white-space:nowrap;">بغداد - المنصور | نحو جيل مبدع ومتفوق</p>
         </div>
       </div>
-      <div style="display:flex;gap:6px;">
-        <button class="btn btn-gold" onclick="toggleSchoolType()">تبديل نوع المدرسة</button>
-        <button class="btn" style="background:rgba(255,255,255,0.2);color:#fff;" onclick="document.body.classList.toggle('dark')">الوضع الليلي</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="openAccessCodeModal()">كود الدخول السريع</button>
+        <button class="btn" style="background:rgba(255,255,255,0.18);color:#fff;" onclick="openSetupModal()">إعدادات المدرسة</button>
+        <button class="btn" style="background:rgba(255,255,255,0.18);color:#fff;" onclick="toggleTheme()">المظهر</button>
+        <button class="btn" style="background:rgba(255,255,255,0.18);color:#fff;" onclick="reopenOnboarding()">الترحيب</button>
       </div>
     </div>
   </header>
 
+  <!-- 4 Roles Bar -->
   <nav class="roles-bar">
-    <button class="role-btn active" onclick="setRole('ADMIN', this)">إدارة المدرسة</button>
-    <button class="role-btn" onclick="setRole('TEACHER', this)">المعلم</button>
-    <button class="role-btn" onclick="setRole('PARENT', this)">ولي الأمر</button>
-    <button class="role-btn" onclick="setRole('STUDENT', this)">الطالب</button>
+    <button class="role-btn active" id="role_ADMIN" onclick="setRole('ADMIN')">إدارة المدرسة</button>
+    <button class="role-btn" id="role_TEACHER" onclick="setRole('TEACHER')">المعلم</button>
+    <button class="role-btn" id="role_PARENT" onclick="setRole('PARENT')">ولي الأمر</button>
+    <button class="role-btn" id="role_STUDENT" onclick="setRole('STUDENT')">الطالب</button>
   </nav>
 
+  <!-- Student Filter Bar for Parent/Student role -->
+  <div id="studentSelectorBar" class="roles-bar" style="display:none;background:var(--bg);"></div>
+
+  <!-- 5 Main Tabs -->
   <nav class="tabs-bar">
-    <button class="tab-btn active" onclick="setTab('attendance', this)">الحضور والطلاب</button>
-    <button class="tab-btn" onclick="setTab('schedule', this)">الجدول والتحضير</button>
-    <button class="tab-btn" onclick="setTab('grades', this)">الامتحانات والدرجات</button>
-    <button class="tab-btn" onclick="setTab('honor', this)">لوحة الشرف والمعرض</button>
-    <button class="tab-btn" id="tuitionTabBtn" onclick="setTab('notices', this)">التبليغات والأقساط</button>
+    <button class="tab-btn active" id="tab_attendance" onclick="setTab('attendance')">الحضور والطلاب</button>
+    <button class="tab-btn" id="tab_schedule" onclick="setTab('schedule')">الجدول والتحضير</button>
+    <button class="tab-btn" id="tab_grades" onclick="setTab('grades')">الامتحانات والدرجات</button>
+    <button class="tab-btn" id="tab_honor" onclick="setTab('honor')">لوحة الشرف والمعرض</button>
+    <button class="tab-btn" id="tab_notices" onclick="setTab('notices')">التبليغات والأقساط</button>
   </nav>
 
+  <!-- Status Banner -->
+  <div id="statusBanner" style="display:none;margin:10px 16px 0;padding:10px 14px;border-radius:12px;background:var(--gold-bg);color:var(--gold-dark);font-weight:700;font-size:13px;" onclick="this.style.display='none'"></div>
+
+  <!-- Main Content -->
   <main class="container" id="mainContent"></main>
 
+  <!-- Developer Signature Footer -->
   <footer class="signature-bar">
-    <span>تصميم وتطوير: أحمد أبو رسلان | 07512362567</span>
+    <span class="nowrap">تصميم وتطوير: أحمد أبو رسلان | 07512362567</span>
     <div class="sig-actions">
       <a class="btn btn-primary" href="tel:07512362567">اتصال هاتفي</a>
       <a class="btn btn-green" href="https://wa.me/9647512362567" target="_blank">واتساب مباشر</a>
     </div>
   </footer>
 
+  <!-- Modal Container -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-box" id="modalContent"></div>
+  </div>
+
   <script>
-    let state = {
-      isPrivate: true,
+    const SLIDES = [
+      {
+        title: 'مرحباً بك في منصة مدرستي الذكية',
+        desc: 'منصة متكاملة لإدارة المدرسة الحديثة وربط الإدارة والمعلمين والطلاب وأولياء الأمور في بيئة عربية راقية وسريعة.',
+        color: [0.12, 0.23, 0.54, 1]
+      },
+      {
+        title: 'تواصل لحظي بين الإدارة، المعلمين، وأولياء الأمور',
+        desc: 'إشعارات حضور وغياب فورية مع تنبيهات واتساب مباشرة، وتبليغات رسمية وإدارة ذكية للمدارس الحكومية والأهلية.',
+        color: [0.15, 0.39, 0.92, 1]
+      },
+      {
+        title: 'متابعة دقيقة للتحضير اليومي، الدرجات، والحضور',
+        desc: 'جدول حصص تفاعلي، سجل درجات مفصل، ولوحة شرف ذهبية لتكريم الطلبة المتفوقين وتحفيزهم نحو الإبداع.',
+        color: [0.96, 0.62, 0.04, 1]
+      }
+    ];
+
+    function buildLottieData(rgba) {
+      return {
+        v: "5.7.4", fr: 30, ip: 0, op: 60, w: 200, h: 200, nm: "SlideAnim", ddd: 0, assets: [],
+        layers: [{
+          ddd: 0, ind: 1, ty: 4, nm: "PulseCircle", sr: 1,
+          ks: {
+            o: { a: 0, k: 100 },
+            r: { a: 1, k: [{ t: 0, s: [0] }, { t: 60, s: [360] }] },
+            p: { a: 0, k: [100, 100, 0] },
+            a: { a: 0, k: [0, 0, 0] },
+            s: { a: 1, k: [{ t: 0, s: [85, 85, 100] }, { t: 30, s: [105, 105, 100] }, { t: 60, s: [85, 85, 100] }] }
+          },
+          shapes: [{
+            ty: "gr",
+            it: [
+              { ty: "sr", sy: 1, d: 1, pt: { a: 0, k: 5 }, p: { a: 0, k: [0, 0] }, r: { a: 0, k: 0 }, ir: { a: 0, k: 32 }, is: { a: 0, k: 0 }, or: { a: 0, k: 64 }, os: { a: 0, k: 0 } },
+              { ty: "fl", c: { a: 0, k: rgba }, o: { a: 0, k: 100 } },
+              { ty: "tr", p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } }
+            ]
+          }]
+        }]
+      };
+    }
+
+    const DEFAULT_STATE = {
+      school: {
+        name: 'ثانوية النور النموذجية',
+        address: 'بغداد - المنصور',
+        motto: 'نحو جيل مبدع ومتفوق',
+        isPrivate: true
+      },
       role: 'ADMIN',
       tab: 'attendance',
+      selectedStudentId: 1,
       students: [
-        { id: 1, name: 'علي محمد جاسم', grade: 'الأول المتوسط - أ', code: 'ST-1042', status: 'حاضر', honor: true, reason: 'المركز الأول في الرياضيات (99%)', phone: '9647512362567', totalFee: 1500000, paidFee: 1000000, nextDate: '2025-05-01' },
-        { id: 2, name: 'فاطمة حيدر كريم', grade: 'الأول المتوسط - أ', code: 'ST-2085', status: 'حاضر', honor: true, reason: 'تفوق علمي وتميز في اللغة العربية', phone: '9647512362567', totalFee: 1500000, paidFee: 1500000, nextDate: 'مسدد بالكامل' },
+        { id: 1, name: 'علي محمد جاسم', grade: 'الأول المتوسط - أ', code: 'ST-1042', status: 'حاضر', honor: true, reason: 'المركز الأول في الرياضيات ومعدل 99%', phone: '9647512362567', totalFee: 1500000, paidFee: 1000000, nextDate: '2025-05-01' },
+        { id: 2, name: 'فاطمة حيدر كريم', grade: 'الأول المتوسط - أ', code: 'ST-2085', status: 'حاضر', honor: true, reason: 'تفوق علمي وتميز في اللغة العربية والعلوم', phone: '9647512362567', totalFee: 1500000, paidFee: 1500000, nextDate: 'مسدد بالكامل' },
         { id: 3, name: 'يوسف عمر عبد الله', grade: 'الثاني المتوسط - ب', code: 'ST-3091', status: 'غائب', honor: false, reason: '', phone: '9647512362567', totalFee: 1500000, paidFee: 750000, nextDate: '2025-04-20' }
+      ],
+      lessons: [
+        { id: 1, day: 'الأحد', period: 'الحصة الأولى', grade: 'الأول المتوسط - أ', subject: 'الرياضيات', teacher: 'أ. حيدر الكعبي', prep: 'شرح المعادلات الخطية ذات المتغير الواحد مع حل أمثلة تطبيقية.', hw: 'حل تمارين الكتاب صفحة 44 (من 1 إلى 6).' },
+        { id: 2, day: 'الأحد', period: 'الحصة الثانية', grade: 'الأول المتوسط - أ', subject: 'اللغة العربية', teacher: 'أ. سارة العبيدي', prep: 'قواعد المبتدأ والخبر وتطبيقات الإعراب الشفهي.', hw: 'كتابة 5 جمل مفيدة وإعرابها في دفتر الواجب.' },
+        { id: 3, day: 'الإثنين', period: 'الحصة الأولى', grade: 'الثاني المتوسط - ب', subject: 'العلوم', teacher: 'أ. مهند الربيعي', prep: 'تفاعلات العناصر الكيميائية والجدول الدوري.', hw: 'مراجعة الفصل الثاني وتلخيص الجدول صفحة 31.' }
+      ],
+      grades: [
+        { id: 1, studentId: 1, studentName: 'علي محمد جاسم', subject: 'الرياضيات', daily: 99, monthly: 98, mid: 100, annual: 99 },
+        { id: 2, studentId: 2, studentName: 'فاطمة حيدر كريم', subject: 'اللغة العربية', daily: 97, monthly: 96, mid: 98, annual: 97 },
+        { id: 3, studentId: 3, studentName: 'يوسف عمر عبد الله', subject: 'العلوم', daily: 86, monthly: 84, mid: 88, annual: 86 }
+      ],
+      gallery: [
+        { id: 1, title: 'مهرجان التفوق العلمي السنوي', date: '2025-03-15', category: 'تكريم المتفوقين', desc: 'تكريم الطلبة الأوائل وتوزيع الأوسمة الذهبية بحضور أولياء الأمور.' },
+        { id: 2, title: 'المعرض العلمي للابتكارات المدرسية', date: '2025-03-02', category: 'نشاط علمي', desc: 'عرض مشاريع الطلبة في الفيزياء والروبوتات والتجارب المختبرية.' }
+      ],
+      notices: [
+        { id: 1, title: 'اجتماع أولياء الأمور الفصلي', type: 'تبليغ عام', studentName: 'جميع الطلبة', msg: 'ندعوكم لحضور الاجتماع الفصلي يوم الخميس القادم الساعة 10:00 صباحاً لمناقشة المستوى العلمي للطلبة.', reply: 'تم الاطلاع، سنكون في الموعد إن شاء الله.' },
+        { id: 2, title: 'تنبيه غياب يومي', type: 'تنبيه حضور', studentName: 'يوسف عمر عبد الله', msg: 'نود إعلامكم بتسجيل غياب الطالب اليوم، يرجى بيان السبب أو التواصل مع الإدارة.', reply: '' }
       ]
     };
 
-    function toggleSchoolType() {
-      state.isPrivate = !state.isPrivate;
-      const badge = document.getElementById('schoolTypeBadge');
-      const tabBtn = document.getElementById('tuitionTabBtn');
-      if (state.isPrivate) {
-        badge.textContent = 'مدرسة أهلية';
-        badge.className = 'badge badge-priv';
-        tabBtn.textContent = 'التبليغات والأقساط';
+    let state = JSON.parse(localStorage.getItem('madrasati_state_v2') || 'null') || DEFAULT_STATE;
+    let currentSlide = 0;
+    let lottieInstance = null;
+
+    function saveState() {
+      localStorage.setItem('madrasati_state_v2', JSON.stringify(state));
+    }
+
+    function showBanner(msg) {
+      const b = document.getElementById('statusBanner');
+      b.textContent = msg;
+      b.style.display = 'block';
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('madrasati_dark', document.body.classList.contains('dark') ? '1' : '0');
+    }
+
+    function renderOnboardingSlide() {
+      const s = SLIDES[currentSlide];
+      document.getElementById('slideTitle').textContent = s.title;
+      document.getElementById('slideDesc').textContent = s.desc;
+      [0, 1, 2].forEach(i => {
+        document.getElementById('dot' + i).className = i === currentSlide ? 'dot active' : 'dot';
+      });
+      document.getElementById('prevSlideBtn').style.visibility = currentSlide === 0 ? 'hidden' : 'visible';
+      document.getElementById('nextSlideBtn').textContent = currentSlide === 2 ? 'ابدأ استخدام المنصة' : 'التالي';
+
+      const container = document.getElementById('lottieContainer');
+      container.innerHTML = '';
+      if (window.lottie) {
+        lottieInstance = window.lottie.loadAnimation({
+          container: container,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          animationData: buildLottieData(s.color)
+        });
       } else {
-        badge.textContent = 'مدرسة حكومية';
-        badge.className = 'badge badge-gov';
-        tabBtn.textContent = 'التبليغات المدرسية';
+        container.innerHTML = '<div style="font-size:64px;color:#F59E0B;">★</div>';
       }
-      render();
     }
 
-    function setRole(role, btn) {
+    function changeSlide(delta) {
+      if (currentSlide + delta >= SLIDES.length) {
+        finishOnboarding();
+        return;
+      }
+      currentSlide = Math.max(0, currentSlide + delta);
+      renderOnboardingSlide();
+    }
+
+    function finishOnboarding() {
+      localStorage.setItem('madrasati_onboarded', '1');
+      document.getElementById('onboardingOverlay').style.display = 'none';
+    }
+
+    function reopenOnboarding() {
+      currentSlide = 0;
+      document.getElementById('onboardingOverlay').style.display = 'flex';
+      renderOnboardingSlide();
+    }
+
+    function setRole(role) {
       state.role = role;
-      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      saveState();
       render();
     }
 
-    function setTab(tab, btn) {
+    function setTab(tab) {
       state.tab = tab;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      saveState();
+      render();
+    }
+
+    function selectStudent(id) {
+      state.selectedStudentId = id;
+      saveState();
       render();
     }
 
@@ -262,84 +564,329 @@
       const st = state.students.find(s => s.id === id);
       if (st) {
         st.status = status;
+        if (status === 'غائب') {
+          state.notices.unshift({
+            id: Date.now(),
+            title: 'تنبيه غياب فوري للطالب ' + st.name,
+            type: 'تنبيه حضور',
+            studentName: st.name,
+            msg: 'تم تسجيل الطالب (' + st.name + ') غائباً هذا اليوم. يرجى المتابعة مع إدارة المدرسة.',
+            reply: ''
+          });
+          showBanner('تم تسجيل الغياب وإرسال إشعار فوري لحساب ولي أمر الطالب: ' + st.name);
+        } else {
+          showBanner('تم تحديث حالة حضور الطالب (' + st.name + ') إلى: ' + status);
+        }
+        saveState();
         render();
       }
     }
 
+    function toggleHonor(id) {
+      const st = state.students.find(s => s.id === id);
+      if (st) {
+        st.honor = !st.honor;
+        if (st.honor && !st.reason) {
+          st.reason = 'تميز علمي وأخلاقي ومواظبة مثالية';
+        }
+        saveState();
+        render();
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('modalBackdrop').style.display = 'none';
+    }
+
+    function openSetupModal() {
+      const box = document.getElementById('modalContent');
+      box.innerHTML = `
+        <h3 style="margin-bottom:12px;">إعدادات وهوية المدرسة</h3>
+        <div class="form-group">
+          <label>اسم المدرسة</label>
+          <input id="inpSchoolName" class="form-control" value="${state.school.name}" />
+        </div>
+        <div class="form-group">
+          <label>العنوان</label>
+          <input id="inpSchoolAddr" class="form-control" value="${state.school.address}" />
+        </div>
+        <div class="form-group">
+          <label>الشعار التربوي</label>
+          <input id="inpSchoolMotto" class="form-control" value="${state.school.motto}" />
+        </div>
+        <div class="form-group">
+          <label>نوع المدرسة (يتحكم تلقائياً بقسم الأقساط)</label>
+          <select id="inpSchoolType" class="form-control">
+            <option value="priv" ${state.school.isPrivate ? 'selected' : ''}>مدرسة أهلية (تفعيل الأقساط المدرسية)</option>
+            <option value="gov" ${!state.school.isPrivate ? 'selected' : ''}>مدرسة حكومية (إخفاء الأقساط تماماً)</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn btn-primary" style="flex:2;" onclick="saveSchoolSetup()">حفظ الإعدادات</button>
+          <button class="btn btn-outline" style="flex:1;" onclick="closeModal()">إلغاء</button>
+        </div>
+      `;
+      document.getElementById('modalBackdrop').style.display = 'flex';
+    }
+
+    function saveSchoolSetup() {
+      state.school.name = document.getElementById('inpSchoolName').value.trim() || state.school.name;
+      state.school.address = document.getElementById('inpSchoolAddr').value.trim() || state.school.address;
+      state.school.motto = document.getElementById('inpSchoolMotto').value.trim() || state.school.motto;
+      state.school.isPrivate = document.getElementById('inpSchoolType').value === 'priv';
+      saveState();
+      closeModal();
+      showBanner('تم تحديث إعدادات المدرسة بنجاح');
+      render();
+    }
+
+    function openAccessCodeModal() {
+      const box = document.getElementById('modalContent');
+      box.innerHTML = `
+        <h3 style="margin-bottom:10px;">الدخول السريع بالكود التعريفي</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">أدخل الكود التعريفي للطالب (مثل ST-1042 أو ST-2085) للانتقال المباشر لملفه:</p>
+        <div class="form-group">
+          <input id="inpAccessCode" class="form-control" placeholder="ST-1042" />
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button class="btn btn-primary" style="flex:1;" onclick="applyAccessCode('PARENT')">دخول كولي أمر</button>
+          <button class="btn btn-gold" style="flex:1;" onclick="applyAccessCode('STUDENT')">دخول كطالب</button>
+          <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
+        </div>
+      `;
+      document.getElementById('modalBackdrop').style.display = 'flex';
+    }
+
+    function applyAccessCode(targetRole) {
+      const code = (document.getElementById('inpAccessCode').value || '').trim().toUpperCase();
+      const st = state.students.find(s => s.code.toUpperCase() === code);
+      if (!st) {
+        alert('لم يتم العثور على طالب بهذا الكود التعريفي');
+        return;
+      }
+      state.role = targetRole;
+      state.selectedStudentId = st.id;
+      saveState();
+      closeModal();
+      showBanner('تم الدخول بنجاح إلى ملف الطالب: ' + st.name);
+      render();
+    }
+
+    function openAddStudentModal() {
+      const box = document.getElementById('modalContent');
+      box.innerHTML = `
+        <h3 style="margin-bottom:12px;">إضافة طالب جديد</h3>
+        <div class="form-group">
+          <label>اسم الطالب الثلاثي</label>
+          <input id="newStName" class="form-control" placeholder="أحمد علي حسن" />
+        </div>
+        <div class="form-group">
+          <label>الصف والشعبة</label>
+          <input id="newStGrade" class="form-control" value="الأول المتوسط - أ" />
+        </div>
+        <div class="form-group">
+          <label>رقم واتساب ولي الأمر</label>
+          <input id="newStPhone" class="form-control" value="9647512362567" />
+        </div>
+        ${state.school.isPrivate ? `
+        <div class="form-group">
+          <label>القسط السنوي الكلي (د.ع)</label>
+          <input id="newStTotalFee" type="number" class="form-control" value="1500000" />
+        </div>
+        <div class="form-group">
+          <label>المبلغ الواصل (د.ع)</label>
+          <input id="newStPaidFee" type="number" class="form-control" value="500000" />
+        </div>` : ''}
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button class="btn btn-primary" style="flex:2;" onclick="saveNewStudent()">إضافة الطالب</button>
+          <button class="btn btn-outline" style="flex:1;" onclick="closeModal()">إلغاء</button>
+        </div>
+      `;
+      document.getElementById('modalBackdrop').style.display = 'flex';
+    }
+
+    function saveNewStudent() {
+      const name = document.getElementById('newStName').value.trim();
+      if (!name) return;
+      const grade = document.getElementById('newStGrade').value.trim() || 'الأول المتوسط - أ';
+      const phone = document.getElementById('newStPhone').value.trim() || '9647512362567';
+      const totalFee = state.school.isPrivate ? Number(document.getElementById('newStTotalFee').value || 1500000) : 0;
+      const paidFee = state.school.isPrivate ? Number(document.getElementById('newStPaidFee').value || 500000) : 0;
+      const code = 'ST-' + Math.floor(1000 + Math.random() * 9000);
+      state.students.unshift({
+        id: Date.now(),
+        name, grade, code,
+        status: 'حاضر',
+        honor: false,
+        reason: '',
+        phone,
+        totalFee,
+        paidFee,
+        nextDate: '2025-06-01'
+      });
+      saveState();
+      closeModal();
+      showBanner('تمت إضافة الطالب (' + name + ') بالكود: ' + code);
+      render();
+    }
+
     function render() {
-      const el = document.getElementById('mainContent');
-      if (state.tab === 'attendance') {
-        el.innerHTML = state.students.map(s => `
-          <div class="card">
-            <div class="row-between">
-              <div>
-                <h3 style="font-size:16px;">${s.name} <span class="badge badge-gov">${s.code}</span></h3>
-                <p style="font-size:13px;color:var(--muted);">${s.grade} | الحالة اليوم: <strong>${s.status}</strong></p>
-              </div>
-              <div style="display:flex;gap:6px;">
-                <button class="btn btn-green" onclick="setAttendance(${s.id}, 'حاضر')">حاضر</button>
-                <button class="btn btn-gold" onclick="setAttendance(${s.id}, 'إجازة')">إجازة</button>
-                <button class="btn btn-red" onclick="setAttendance(${s.id}, 'غائب')">غائب</button>
-                <a class="btn btn-primary" href="https://wa.me/${s.phone}?text=${encodeURIComponent('إشعار من منصة مدرستي بخصوص الطالب ' + s.name + ': الحالة اليوم ' + s.status)}" target="_blank">إشعار واتساب</a>
-              </div>
-            </div>
-          </div>
-        `).join('');
-      } else if (state.tab === 'schedule') {
-        el.innerHTML = `
-          <div class="card">
-            <h3>الأحد - الحصة الأولى | الرياضيات (الأول المتوسط - أ)</h3>
-            <p style="margin-top:6px;color:var(--muted);">المعلم: أ. حيدر الكعبي</p>
-            <p style="margin-top:6px;"><strong>التحضير اليومي:</strong> شرح موضوع المعادلات الخطية مع أمثلة تطبيقية.</p>
-            <p style="margin-top:4px;color:var(--primary);"><strong>الواجب القادم:</strong> حل تمارين الكتاب صفحة 44 (من 1 إلى 6).</p>
-          </div>
-          <div class="card">
-            <h3>الأحد - الحصة الثانية | اللغة العربية (الأول المتوسط - أ)</h3>
-            <p style="margin-top:6px;color:var(--muted);">المعلم: أ. سارة العبيدي</p>
-            <p style="margin-top:6px;"><strong>التحضير اليومي:</strong> قواعد المبتدأ والخبر وتطبيقات الإعراب.</p>
-            <p style="margin-top:4px;color:var(--primary);"><strong>الواجب القادم:</strong> كتابة 5 جمل مفيدة وإعرابها في دفتر الواجب.</p>
-          </div>
-        `;
-      } else if (state.tab === 'grades') {
-        el.innerHTML = state.students.map(s => `
-          <div class="card">
-            <div class="row-between">
-              <h3>${s.name} - الرياضيات</h3>
-              <span class="badge badge-priv">المعدل: 96 / 100</span>
-            </div>
-            <p style="margin-top:8px;font-size:13px;color:var(--muted);">يومي: 98 | شهري: 95 | نصف السنة: 96 | السعي السنوي: 96</p>
-          </div>
-        `).join('');
-      } else if (state.tab === 'honor') {
-        el.innerHTML = state.students.filter(s => s.honor).map(s => `
-          <div class="card card-gold">
-            <div class="row-between">
-              <h3>★ لوحة الشرف الذهبية: ${s.name}</h3>
-              <span class="badge badge-priv">${s.grade}</span>
-            </div>
-            <p style="margin-top:6px;font-weight:600;">${s.reason}</p>
-          </div>
-        `).join('');
+      document.getElementById('schoolNameText').textContent = state.school.name;
+      document.getElementById('schoolAddressText').textContent = state.school.address + ' | ' + state.school.motto;
+
+      const badge = document.getElementById('schoolTypeBadge');
+      const noticesTab = document.getElementById('tab_notices');
+      if (state.school.isPrivate) {
+        badge.textContent = 'مدرسة أهلية';
+        badge.className = 'badge badge-priv';
+        noticesTab.textContent = 'التبليغات والأقساط';
       } else {
-        let html = `
-          <div class="card">
-            <h3>تبليغ رسمي: اجتماع أولياء الأمور الفصلي</h3>
-            <p style="margin-top:6px;color:var(--muted);">ندعوكم لحضور الاجتماع الفصلي يوم الخميس القادم الساعة 10:00 صباحاً لمناقشة المستوى العلمي للطلبة.</p>
+        badge.textContent = 'مدرسة حكومية';
+        badge.className = 'badge badge-gov';
+        noticesTab.textContent = 'التبليغات المدرسية';
+      }
+
+      ['ADMIN', 'TEACHER', 'PARENT', 'STUDENT'].forEach(r => {
+        document.getElementById('role_' + r).className = state.role === r ? 'role-btn active' : 'role-btn';
+      });
+      ['attendance', 'schedule', 'grades', 'honor', 'notices'].forEach(t => {
+        document.getElementById('tab_' + t).className = state.tab === t ? 'tab-btn active' : 'tab-btn';
+      });
+
+      const selectorBar = document.getElementById('studentSelectorBar');
+      if (state.role === 'PARENT' || state.role === 'STUDENT') {
+        selectorBar.style.display = 'flex';
+        selectorBar.innerHTML = `<span style="font-size:12px;font-weight:700;align-self:center;">الطالب المحدد:</span>` +
+          state.students.map(s => `
+            <button class="role-btn ${state.selectedStudentId === s.id ? 'active' : ''}" onclick="selectStudent(${s.id})">${s.name} (${s.code})</button>
+          `).join('');
+      } else {
+        selectorBar.style.display = 'none';
+      }
+
+      const visibleStudents = (state.role === 'PARENT' || state.role === 'STUDENT')
+        ? state.students.filter(s => s.id === state.selectedStudentId)
+        : state.students;
+
+      const canEdit = state.role === 'ADMIN' || state.role === 'TEACHER';
+      const el = document.getElementById('mainContent');
+
+      if (state.tab === 'attendance') {
+        const presentCount = state.students.filter(s => s.status === 'حاضر').length;
+        const absentCount = state.students.filter(s => s.status === 'غائب').length;
+        el.innerHTML = `
+          <div class="stats-grid">
+            <div class="stat-card"><div style="font-size:20px;font-weight:800;color:var(--primary-light);">${state.students.length}</div><div style="font-size:12px;color:var(--muted);">إجمالي الطلاب</div></div>
+            <div class="stat-card"><div style="font-size:20px;font-weight:800;color:var(--green);">${presentCount}</div><div style="font-size:12px;color:var(--muted);">حاضر اليوم</div></div>
+            <div class="stat-card"><div style="font-size:20px;font-weight:800;color:var(--red);">${absentCount}</div><div style="font-size:12px;color:var(--muted);">غائب اليوم</div></div>
           </div>
+          ${state.role === 'ADMIN' ? `<div style="margin-bottom:12px;"><button class="btn btn-primary" onclick="openAddStudentModal()">+ إضافة طالب جديد</button></div>` : ''}
+          ${visibleStudents.map(s => `
+            <div class="card ${s.honor ? 'card-gold' : ''}">
+              <div class="row-between">
+                <div>
+                  <h3 style="font-size:16px;">${s.name} <span class="badge badge-gov">${s.code}</span> ${s.honor ? '<span class="badge badge-priv">★ متفوق</span>' : ''}</h3>
+                  <p style="font-size:13px;color:var(--muted);margin-top:4px;">${s.grade} | الحالة اليوم: <span class="badge ${s.status === 'حاضر' ? 'badge-green' : s.status === 'غائب' ? 'badge-red' : 'badge-priv'}">${s.status}</span></p>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  ${canEdit ? `
+                    <button class="btn btn-green" onclick="setAttendance(${s.id}, 'حاضر')">حاضر</button>
+                    <button class="btn btn-gold" onclick="setAttendance(${s.id}, 'إجازة')">إجازة</button>
+                    <button class="btn btn-red" onclick="setAttendance(${s.id}, 'غائب')">غائب</button>
+                    <button class="btn btn-outline" onclick="toggleHonor(${s.id})">${s.honor ? 'إلغاء التفوق' : '★ لوحة الشرف'}</button>
+                  ` : ''}
+                  <a class="btn btn-primary" href="https://wa.me/${s.phone}?text=${encodeURIComponent('إشعار من منصة مدرستي (' + state.school.name + ') بخصوص الطالب ' + s.name + ': الحالة اليوم ' + s.status)}" target="_blank">إشعار واتساب</a>
+                </div>
+              </div>
+            </div>
+          `).join('')}
         `;
-        if (state.isPrivate) {
-          html += state.students.map(s => `
+      } else if (state.tab === 'schedule') {
+        el.innerHTML = state.lessons.map(l => `
+          <div class="card">
+            <div class="row-between">
+              <h3 style="font-size:16px;">${l.day} - ${l.period} | ${l.subject}</h3>
+              <span class="badge badge-gov">${l.grade}</span>
+            </div>
+            <p style="margin-top:6px;font-size:13px;color:var(--muted);">معلم المادة: ${l.teacher}</p>
+            <p style="margin-top:8px;font-size:14px;"><strong>التحضير اليومي:</strong> ${l.prep}</p>
+            <p style="margin-top:4px;font-size:14px;color:var(--primary-light);"><strong>الواجب القادم:</strong> ${l.hw}</p>
+          </div>
+        `).join('');
+      } else if (state.tab === 'grades') {
+        const gradesList = (state.role === 'PARENT' || state.role === 'STUDENT')
+          ? state.grades.filter(g => g.studentId === state.selectedStudentId)
+          : state.grades;
+        el.innerHTML = gradesList.map(g => {
+          const avg = Math.round((g.daily + g.monthly + g.mid + g.annual) / 4);
+          return `
+            <div class="card">
+              <div class="row-between">
+                <h3 style="font-size:16px;">${g.studentName} - ${g.subject}</h3>
+                <span class="badge ${avg >= 90 ? 'badge-priv' : 'badge-gov'}">المعدل النهائي: ${avg} / 100</span>
+              </div>
+              <p style="margin-top:8px;font-size:13px;color:var(--muted);">يومي: ${g.daily} | شهري: ${g.monthly} | نصف السنة: ${g.mid} | السعي السنوي: ${g.annual}</p>
+            </div>
+          `;
+        }).join('');
+      } else if (state.tab === 'honor') {
+        el.innerHTML = `
+          <h3 style="margin-bottom:10px;color:var(--gold-dark);">★ لوحة الشرف الذهبية للمتفوقين</h3>
+          ${state.students.filter(s => s.honor).map(s => `
             <div class="card card-gold">
               <div class="row-between">
-                <h3>إدارة الأقساط: ${s.name}</h3>
-                <span class="badge badge-priv">المتبقي: ${(s.totalFee - s.paidFee).toLocaleString()} د.ع</span>
+                <h3>★ ${s.name}</h3>
+                <span class="badge badge-priv">${s.grade}</span>
               </div>
-              <p style="margin-top:6px;font-size:13px;">الكلي: ${s.totalFee.toLocaleString()} د.ع | المدفوع: ${s.paidFee.toLocaleString()} د.ع | القسط القادم: ${s.nextDate}</p>
+              <p style="margin-top:6px;font-size:14px;font-weight:700;">${s.reason}</p>
+            </div>
+          `).join('')}
+          <h3 style="margin:18px 0 10px;">معرض صور وفعاليات المدرسة</h3>
+          ${state.gallery.map(ev => `
+            <div class="card">
+              <div class="row-between">
+                <h3 style="font-size:15px;">${ev.title}</h3>
+                <span class="badge badge-gov">${ev.category} | ${ev.date}</span>
+              </div>
+              <p style="margin-top:6px;font-size:13px;color:var(--muted);">${ev.desc}</p>
+            </div>
+          `).join('')}
+        `;
+      } else {
+        let html = `<h3 style="margin-bottom:10px;">التبليغات الرسمية وتواصل أولياء الأمور</h3>` +
+          state.notices.map(n => `
+            <div class="card">
+              <div class="row-between">
+                <h3 style="font-size:15px;">${n.title}</h3>
+                <span class="badge badge-gov">${n.type} | ${n.studentName}</span>
+              </div>
+              <p style="margin-top:6px;font-size:14px;">${n.msg}</p>
+              ${n.reply ? `<p style="margin-top:8px;padding:8px 12px;border-radius:10px;background:var(--bg);font-size:13px;color:var(--green);"><strong>رد ولي الأمر:</strong> ${n.reply}</p>` : ''}
             </div>
           `).join('');
+
+        if (state.school.isPrivate) {
+          html += `<h3 style="margin:18px 0 10px;color:var(--gold-dark);">إدارة الأقساط المدرسية (المدرسة الأهلية)</h3>` +
+            visibleStudents.map(s => `
+              <div class="card card-gold">
+                <div class="row-between">
+                  <h3 style="font-size:15px;">${s.name} (${s.code})</h3>
+                  <span class="badge badge-priv">المتبقي: ${(s.totalFee - s.paidFee).toLocaleString()} د.ع</span>
+                </div>
+                <p style="margin-top:6px;font-size:13px;">القسط الكلي: ${s.totalFee.toLocaleString()} د.ع | المدفوع: ${s.paidFee.toLocaleString()} د.ع | موعد القسط القادم: <strong>${s.nextDate}</strong></p>
+              </div>
+            `).join('');
         }
         el.innerHTML = html;
       }
+    }
+
+    if (localStorage.getItem('madrasati_dark') === '1') {
+      document.body.classList.add('dark');
+    }
+    if (!localStorage.getItem('madrasati_onboarded')) {
+      document.getElementById('onboardingOverlay').style.display = 'flex';
+      renderOnboardingSlide();
     }
     render();
   </script>

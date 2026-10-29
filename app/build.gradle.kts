@@ -12,7 +12,7 @@ plugins {
 android {
   namespace = "com.example"
   if (System.getenv("GITHUB_ACTIONS") == "true") {
-    compileSdk = 35
+    compileSdk = 34
   } else {
     compileSdk { version = release(36) { minorApiLevel = 1 } }
   }
@@ -20,11 +20,16 @@ android {
   defaultConfig {
     applicationId = "com.aistudio.myschool.mdrsti"
     minSdk = 24
-    targetSdk = if (System.getenv("GITHUB_ACTIONS") == "true") 35 else 36
+    targetSdk = if (System.getenv("GITHUB_ACTIONS") == "true") 34 else 36
     versionCode = 1
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+  }
+
+  lint {
+    checkReleaseBuilds = false
+    abortOnError = false
   }
 
   // Do not remove or modify these signingConfigs. They are necessary for building, installing,

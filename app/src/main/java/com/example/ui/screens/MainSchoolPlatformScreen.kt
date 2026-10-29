@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.School
@@ -65,6 +66,7 @@ import com.example.data.model.SchoolConfig
 import com.example.data.model.SchoolType
 import com.example.data.model.StudentRecord
 import com.example.data.model.UserRole
+import com.example.ui.components.WebPlatformPortalDialog
 import com.example.ui.viewmodel.SchoolViewModel
 import com.example.ui.viewmodel.UiState
 
@@ -105,6 +107,7 @@ fun MainSchoolPlatformScreen(
     var showAddGradeDialog by remember { mutableStateOf(false) }
     var showSendNoticeDialog by remember { mutableStateOf(false) }
     var showAddEventDialog by remember { mutableStateOf(false) }
+    var showWebPortalDialog by remember { mutableStateOf(false) }
 
     BackHandler(enabled = currentTabIndex != 0) {
         currentTabIndex = 0
@@ -201,6 +204,7 @@ fun MainSchoolPlatformScreen(
                             onSelectRole = { viewModel.setRole(it) },
                             onSelectStudent = { viewModel.selectStudent(it.id) },
                             onOpenAccessCode = { showAccessCodeDialog = true },
+                            onOpenWebPortal = { showWebPortalDialog = true },
                             onToggleDarkTheme = onToggleDarkTheme,
                             onOpenSettings = { showSettingsDialog = true }
                         )
@@ -403,6 +407,12 @@ fun MainSchoolPlatformScreen(
                         }
                     )
                 }
+
+                if (showWebPortalDialog) {
+                    WebPlatformPortalDialog(
+                        onDismiss = { showWebPortalDialog = false }
+                    )
+                }
             }
         }
     }
@@ -418,6 +428,7 @@ private fun SchoolTopHeader(
     onSelectRole: (UserRole) -> Unit,
     onSelectStudent: (StudentRecord) -> Unit,
     onOpenAccessCode: () -> Unit,
+    onOpenWebPortal: () -> Unit,
     onToggleDarkTheme: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
@@ -508,6 +519,13 @@ private fun SchoolTopHeader(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onOpenWebPortal) {
+                        Icon(
+                            imageVector = Icons.Default.Language,
+                            contentDescription = "فتح بوابة الويب",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                     IconButton(onClick = onOpenAccessCode) {
                         Icon(
                             imageVector = Icons.Default.Key,

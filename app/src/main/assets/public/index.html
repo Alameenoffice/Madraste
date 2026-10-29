@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>مدرستي - المنصة المدرسية الذكية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <style>
+    :root {
+      --primary: #1E3A8A;
+      --primary-light: #2563EB;
+      --gold: #F59E0B;
+      --gold-bg: #FEF3C7;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #0F172A;
+      --muted: #475569;
+      --border: #E2E8F0;
+      --green: #16A34A;
+      --red: #DC2626;
+    }
+    body.dark {
+      --primary: #3B82F6;
+      --primary-light: #60A5FA;
+      --gold: #FBBF24;
+      --gold-bg: #451A03;
+      --bg: #0B1120;
+      --card: #1E293B;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+      --border: #334155;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      direction: rtl;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    button, .badge, .tab-btn, .role-btn {
+      white-space: nowrap;
+      cursor: pointer;
+      border: none;
+      font-family: 'Cairo', sans-serif;
+    }
+    .header {
+      background: linear-gradient(135deg, #1E3A8A, #2563EB);
+      color: #fff;
+      padding: 14px 16px;
+      box-shadow: 0 4px 14px rgba(30, 58, 138, 0.2);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .school-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .school-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #FBBF24;
+      font-weight: 800;
+    }
+    .badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+    }
+    .badge-gov { background: #DBEAFE; color: #1E3A8A; }
+    .badge-priv { background: #FEF3C7; color: #92400E; }
+    .roles-bar, .tabs-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 16px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    .role-btn, .tab-btn {
+      padding: 7px 14px;
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 13px;
+      border: 1px solid var(--border);
+    }
+    .role-btn.active, .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .container {
+      flex: 1;
+      padding: 16px;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    .card-gold {
+      border: 2px solid var(--gold);
+      background: linear-gradient(135deg, var(--card), var(--gold-bg));
+    }
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-gold { background: var(--gold); color: #fff; }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-red { background: var(--red); color: #fff; }
+    .signature-bar {
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .sig-actions {
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-top">
+      <div class="school-brand">
+        <div class="school-logo">م</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <h1 id="schoolNameText" style="font-size:18px;white-space:nowrap;">ثانوية النور النموذجية</h1>
+            <span id="schoolTypeBadge" class="badge badge-priv">مدرسة أهلية</span>
+          </div>
+          <p id="schoolAddressText" style="font-size:12px;opacity:0.9;white-space:nowrap;">بغداد - المنصور | نحو جيل مبدع ومتفوق</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-gold" onclick="toggleSchoolType()">تبديل نوع المدرسة</button>
+        <button class="btn" style="background:rgba(255,255,255,0.2);color:#fff;" onclick="document.body.classList.toggle('dark')">الوضع الليلي</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="roles-bar">
+    <button class="role-btn active" onclick="setRole('ADMIN', this)">إدارة المدرسة</button>
+    <button class="role-btn" onclick="setRole('TEACHER', this)">المعلم</button>
+    <button class="role-btn" onclick="setRole('PARENT', this)">ولي الأمر</button>
+    <button class="role-btn" onclick="setRole('STUDENT', this)">الطالب</button>
+  </nav>
+
+  <nav class="tabs-bar">
+    <button class="tab-btn active" onclick="setTab('attendance', this)">الحضور والطلاب</button>
+    <button class="tab-btn" onclick="setTab('schedule', this)">الجدول والتحضير</button>
+    <button class="tab-btn" onclick="setTab('grades', this)">الامتحانات والدرجات</button>
+    <button class="tab-btn" onclick="setTab('honor', this)">لوحة الشرف والمعرض</button>
+    <button class="tab-btn" id="tuitionTabBtn" onclick="setTab('notices', this)">التبليغات والأقساط</button>
+  </nav>
+
+  <main class="container" id="mainContent"></main>
+
+  <footer class="signature-bar">
+    <span>تصميم وتطوير: أحمد أبو رسلان | 07512362567</span>
+    <div class="sig-actions">
+      <a class="btn btn-primary" href="tel:07512362567">اتصال هاتفي</a>
+      <a class="btn btn-green" href="https://wa.me/9647512362567" target="_blank">واتساب مباشر</a>
+    </div>
+  </footer>
+
+  <script>
+    let state = {
+      isPrivate: true,
+      role: 'ADMIN',
+      tab: 'attendance',
+      students: [
+        { id: 1, name: 'علي محمد جاسم', grade: 'الأول المتوسط - أ', code: 'ST-1042', status: 'حاضر', honor: true, reason: 'المركز الأول في الرياضيات (99%)', phone: '9647512362567', totalFee: 1500000, paidFee: 1000000, nextDate: '2025-05-01' },
+        { id: 2, name: 'فاطمة حيدر كريم', grade: 'الأول المتوسط - أ', code: 'ST-2085', status: 'حاضر', honor: true, reason: 'تفوق علمي وتميز في اللغة العربية', phone: '9647512362567', totalFee: 1500000, paidFee: 1500000, nextDate: 'مسدد بالكامل' },
+        { id: 3, name: 'يوسف عمر عبد الله', grade: 'الثاني المتوسط - ب', code: 'ST-3091', status: 'غائب', honor: false, reason: '', phone: '9647512362567', totalFee: 1500000, paidFee: 750000, nextDate: '2025-04-20' }
+      ]
+    };
+
+    function toggleSchoolType() {
+      state.isPrivate = !state.isPrivate;
+      const badge = document.getElementById('schoolTypeBadge');
+      const tabBtn = document.getElementById('tuitionTabBtn');
+      if (state.isPrivate) {
+        badge.textContent = 'مدرسة أهلية';
+        badge.className = 'badge badge-priv';
+        tabBtn.textContent = 'التبليغات والأقساط';
+      } else {
+        badge.textContent = 'مدرسة حكومية';
+        badge.className = 'badge badge-gov';
+        tabBtn.textContent = 'التبليغات المدرسية';
+      }
+      render();
+    }
+
+    function setRole(role, btn) {
+      state.role = role;
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function setTab(tab, btn) {
+      state.tab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function setAttendance(id, status) {
+      const st = state.students.find(s => s.id === id);
+      if (st) {
+        st.status = status;
+        render();
+      }
+    }
+
+    function render() {
+      const el = document.getElementById('mainContent');
+      if (state.tab === 'attendance') {
+        el.innerHTML = state.students.map(s => `
+          <div class="card">
+            <div class="row-between">
+              <div>
+                <h3 style="font-size:16px;">${s.name} <span class="badge badge-gov">${s.code}</span></h3>
+                <p style="font-size:13px;color:var(--muted);">${s.grade} | الحالة اليوم: <strong>${s.status}</strong></p>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-green" onclick="setAttendance(${s.id}, 'حاضر')">حاضر</button>
+                <button class="btn btn-gold" onclick="setAttendance(${s.id}, 'إجازة')">إجازة</button>
+                <button class="btn btn-red" onclick="setAttendance(${s.id}, 'غائب')">غائب</button>
+                <a class="btn btn-primary" href="https://wa.me/${s.phone}?text=${encodeURIComponent('إشعار من منصة مدرستي بخصوص الطالب ' + s.name + ': الحالة اليوم ' + s.status)}" target="_blank">إشعار واتساب</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } else if (state.tab === 'schedule') {
+        el.innerHTML = `
+          <div class="card">
+            <h3>الأحد - الحصة الأولى | الرياضيات (الأول المتوسط - أ)</h3>
+            <p style="margin-top:6px;color:var(--muted);">المعلم: أ. حيدر الكعبي</p>
+            <p style="margin-top:6px;"><strong>التحضير اليومي:</strong> شرح موضوع المعادلات الخطية مع أمثلة تطبيقية.</p>
+            <p style="margin-top:4px;color:var(--primary);"><strong>الواجب القادم:</strong> حل تمارين الكتاب صفحة 44 (من 1 إلى 6).</p>
+          </div>
+          <div class="card">
+            <h3>الأحد - الحصة الثانية | اللغة العربية (الأول المتوسط - أ)</h3>
+            <p style="margin-top:6px;color:var(--muted);">المعلم: أ. سارة العبيدي</p>
+            <p style="margin-top:6px;"><strong>التحضير اليومي:</strong> قواعد المبتدأ والخبر وتطبيقات الإعراب.</p>
+            <p style="margin-top:4px;color:var(--primary);"><strong>الواجب القادم:</strong> كتابة 5 جمل مفيدة وإعرابها في دفتر الواجب.</p>
+          </div>
+        `;
+      } else if (state.tab === 'grades') {
+        el.innerHTML = state.students.map(s => `
+          <div class="card">
+            <div class="row-between">
+              <h3>${s.name} - الرياضيات</h3>
+              <span class="badge badge-priv">المعدل: 96 / 100</span>
+            </div>
+            <p style="margin-top:8px;font-size:13px;color:var(--muted);">يومي: 98 | شهري: 95 | نصف السنة: 96 | السعي السنوي: 96</p>
+          </div>
+        `).join('');
+      } else if (state.tab === 'honor') {
+        el.innerHTML = state.students.filter(s => s.honor).map(s => `
+          <div class="card card-gold">
+            <div class="row-between">
+              <h3>★ لوحة الشرف الذهبية: ${s.name}</h3>
+              <span class="badge badge-priv">${s.grade}</span>
+            </div>
+            <p style="margin-top:6px;font-weight:600;">${s.reason}</p>
+          </div>
+        `).join('');
+      } else {
+        let html = `
+          <div class="card">
+            <h3>تبليغ رسمي: اجتماع أولياء الأمور الفصلي</h3>
+            <p style="margin-top:6px;color:var(--muted);">ندعوكم لحضور الاجتماع الفصلي يوم الخميس القادم الساعة 10:00 صباحاً لمناقشة المستوى العلمي للطلبة.</p>
+          </div>
+        `;
+        if (state.isPrivate) {
+          html += state.students.map(s => `
+            <div class="card card-gold">
+              <div class="row-between">
+                <h3>إدارة الأقساط: ${s.name}</h3>
+                <span class="badge badge-priv">المتبقي: ${(s.totalFee - s.paidFee).toLocaleString()} د.ع</span>
+              </div>
+              <p style="margin-top:6px;font-size:13px;">الكلي: ${s.totalFee.toLocaleString()} د.ع | المدفوع: ${s.paidFee.toLocaleString()} د.ع | القسط القادم: ${s.nextDate}</p>
+            </div>
+          `).join('');
+        }
+        el.innerHTML = html;
+      }
+    }
+    render();
+  </script>
+</body>
+</html>
